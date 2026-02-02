@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dapur Ghania - Paket Kue Hantaran & Hampers Exclusive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .modal-blur { backdrop-filter: blur(12px); background: rgba(0,0,0,0.5); }
+        .card-shadow { box-shadow: 0 15px 35px -12px rgba(234, 88, 12, 0.15); }
+        .nav-active { color: #ea580c; border-bottom: 3px solid #ea580c; }
+        input[type="date"], input[type="time"] { min-height: 3rem; }
+        .cat-btn{
+    padding:8px 14px;
+    font-size:10px;
+    font-weight:800;
+    border-radius:9999px;
+    background:#f3f4f6;
+    white-space:nowrap;
+  }
+        
+    </style>
+</head>
+<body class="bg-[#FFFAF5] text-gray-800">
+
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 z-[999] hidden items-center justify-center modal-blur">
+        <div class="bg-white p-8 rounded-3xl shadow-xl text-center">
+            <div class="animate-spin text-orange-600 text-3xl mb-4"><i class="fas fa-circle-notch"></i></div>
+            <p id="loader-text" class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Memproses...</p>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-screen" class="fixed inset-0 z-[200] hidden items-center justify-center p-6 modal-blur">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative">
+            <button onclick="closeAuth()" class="absolute top-6 right-6 text-gray-400"><i class="fas fa-times"></i></button>
+            <div class="text-center mb-8">
+                <h1 class="font-black text-orange-800 text-3xl tracking-tighter">DAPUR GHANIA</h1>
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-2">Akses Akun Pelanggan</p>
+            </div>
+            <div class="flex bg-gray-100 p-1 rounded-2xl mb-6">
+                <button id="tab-login" onclick="switchAuth('login')" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all bg-white shadow-sm text-orange-600">LOGIN</button>
+                <button id="tab-register" onclick="switchAuth('register')" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all text-gray-500">DAFTAR</button>
+            </div>
+            <div id="auth-form" class="space-y-4">
+                <input type="tel" id="auth-phone" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none" placeholder="Nomor WhatsApp">
+                <div id="reg-name-wrapper" class="hidden">
+                    <input type="text" id="auth-name" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none" placeholder="Nama Lengkap">
+                </div>
+                <input type="password" id="auth-pin" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none" placeholder="PIN (6 Digit)">
+                <button onclick="handleAuth()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all mt-4">KONFIRMASI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 p-4">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="font-black text-orange-800 tracking-tighter text-xl">DAPUR GHANIA</h1>
+                <p id="welcome-user" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pesan Katering Mudah</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <div id="user-nav-container">
+                    <button id="btn-login-trigger" onclick="openAuth()" class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-[10px] font-bold uppercase tracking-wider">
+                        <i class="fas fa-user-circle text-lg"></i>
+                        <span>Login</span>
+                    </button>
+                    <button id="btn-profile-trigger" onclick="handleUserAction()" class="hidden flex items-center gap-2 px-4 py-2 bg-orange-50 text-orange-600 rounded-xl text-[10px] font-bold uppercase tracking-wider">
+                        <i class="fas fa-user-check text-lg"></i>
+                        <span id="display-name">User</span>
+                    </button>
+                </div>
+                <button onclick="openCart()" class="relative p-2.5 bg-orange-600 rounded-xl shadow-lg">
+                    <i class="fas fa-shopping-basket text-lg text-white"></i>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-5 h-5 flex items-center justify-center rounded-full font-bold border-2 border-white">0</span>
+                </button>
+            </div>
+        </div>
+        <nav id="main-nav" class="max-w-4xl mx-auto mt-4 flex gap-6 border-t pt-2 hidden">
+            <button onclick="showPage('home')" id="nav-home" class="text-[10px] font-black uppercase tracking-widest py-2 nav-active">Home</button>
+            <button onclick="showPage('history')" id="nav-history" class="text-[10px] font-black uppercase tracking-widest py-2 text-gray-400">Riwayat</button>
+            <button onclick="showPage('admin')" id="nav-admin" class="hidden text-[10px] font-black uppercase tracking-widest py-2 text-red-500">Admin Panel</button>
+        </nav>
+    </header>
+
+    <!-- Page Content -->
+    <main id="page-home" class="page-content max-w-4xl mx-auto p-4 pb-32">
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-[2.5rem] p-8 text-white mb-8 relative overflow-hidden shadow-xl">
+            <div class="relative z-10">
+                <h2 class="text-2xl font-black mb-1 uppercase tracking-tight leading-tight">Aneka Kue & Hampers Exclusive</h2>
+                <p class="text-orange-100 text-sm opacity-90">Satu pesanan, beribu kenangan manis.</p>
+            </div>
+        </div>
+        <!-- Search Produk -->
+<div class="mb-4">
+  <input 
+    id="search-input"
+    oninput="handleSearch(this.value)"
+    type="text"
+    placeholder="Cari produk kue / paket..."
+    class="w-full p-4 rounded-2xl border border-gray-100 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
+  >
+</div>
+
+        <!-- Kategori -->
+<div class="flex gap-2 mb-4 overflow-x-auto">
+  <button onclick="setCategory('all')" class="cat-btn nav-active">Semua</button>
+  <button onclick="setCategory('simple')" class="cat-btn">Paket Simple</button>
+  <button onclick="setCategory('exclusive')" class="cat-btn">Paket Exclusive</button>
+  <button onclick="setCategory('satuan')" class="cat-btn">Kue Satuan</button>
+</div>
+
+<div id="product-list" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+
+    </main>
+
+    <main id="page-history" class="page-content hidden max-w-4xl mx-auto p-4 pb-32">
+        <h2 class="font-black text-xl mb-6">Riwayat Pesanan</h2>
+        <div id="history-list" class="space-y-4"></div>
+    </main>
+
+    <main id="page-admin" class="page-content hidden max-w-4xl mx-auto p-4 pb-32">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="font-black text-xl text-red-600">Admin Dashboard</h2>
+            <button onclick="fetchAdminOrders()" class="p-2 bg-gray-100 rounded-lg text-xs font-bold uppercase">Refresh</button>
+        </div>
+        <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden card-shadow">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-50 text-gray-400 uppercase font-black">
+                        <tr>
+                            <th class="p-4">Invoice</th>
+                            <th class="p-4">Nama</th>
+                            <th class="p-4">Total</th>
+                            <th class="p-4">Ongkir</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4">Tracking</th>
+                            <th class="p-4">WA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-orders-table" class="divide-y divide-gray-50"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="modal-cart" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b flex justify-between items-center bg-orange-50">
+                <h2 class="text-xl font-black text-gray-900">Pesanan Saya</h2>
+                <button onclick="closeCart()" class="text-gray-400"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50"></div>
+            <div class="p-6 bg-white border-t space-y-3">
+                <div class="flex justify-between items-center pt-2">
+                    <span class="font-black text-gray-900">Total Akhir</span>
+                    <span id="total-val" class="text-2xl font-black text-orange-600">Rp 0</span>
+                </div>
+                <button onclick="handleCheckoutProcess()" id="btn-to-checkout" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black shadow-lg">CHECKOUT SEKARANG</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-checkout" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 modal-blur">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
+            <div class="p-6 border-b flex items-center gap-4 bg-orange-50">
+                <button onclick="closeCheckout()" class="text-orange-800"><i class="fas fa-arrow-left"></i></button>
+                <h2 class="text-lg font-black text-orange-900 uppercase tracking-tighter">Konfirmasi Pesanan</h2>
+            </div>
+            <div class="flex-1 overflow-y-auto p-8 space-y-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-gray-400">Nama</label>
+                        <input type="text" id="f-nama" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 font-bold text-sm" readonly>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-gray-400">Tgl Kirim</label>
+                        <input type="date" id="f-tgl" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 font-bold text-sm">
+                    </div>
+                </div>
+                <!-- Jam Pengiriman -->
+              <div class="mt-3">
+                <label class="text-xs text-gray-500">Jam Pengiriman</label>
+                <input
+                  type="time"
+                  id="f-jam"
+                  class="w-full mt-1 p-2 border rounded-xl text-sm"
+                />
+              </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black uppercase text-gray-400">Metode Pembayaran</label>
+                    <select id="f-bayar" onchange="updatePaymentUI()" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 font-bold text-sm outline-none">
+                        <option value="Full Payment">Lunas (Full Payment)</option>
+                        <option value="DP 50%">DP 50% (Bayar 2 Tahap)</option>
+                    </select>
+                    <div id="dp-info-container" class="hidden mt-4 p-4 bg-orange-50 rounded-2xl border border-orange-100 border-dashed">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm">
+                                <p class="text-[10px] font-black text-gray-400 uppercase">DP 50% (Skrg)</p>
+                                <p class="font-black text-orange-600">Rp <span id="dp-amount-label">0</span></p>
+                            </div>
+                            <div class="flex justify-between items-center bg-gray-100 p-3 rounded-xl">
+                                <p class="text-[10px] font-black text-gray-400 uppercase">Pelunasan (Nanti)</p>
+                                <p class="font-black text-gray-500">Rp <span id="re-amount-label">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black uppercase text-gray-400">Alamat Lengkap</label>
+                    <textarea id="f-alamat" rows="2" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 font-bold text-sm"></textarea>
+                </div>
+                <!-- Catatan / Request -->
+            <div class="mt-3">
+              <label class="text-xs text-gray-500">
+                Catatan / Request (opsional)
+              </label>
+              <textarea
+                id="f-catatan"
+                rows="3"
+                placeholder="Contoh: tanpa kacang, tulisan coklat, kirim pagi"
+                class="w-full mt-1 p-2 border rounded-xl text-sm"
+              ></textarea>
+            </div>
+            </div>
+            
+
+            <div class="p-6 bg-white border-t">
+                <button onclick="submitOrder()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black shadow-lg flex items-center justify-center gap-3 active:scale-95 transition-all">
+                    <i class="fab fa-whatsapp text-xl"></i>
+                    ORDER SEKARANG
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxvcs7omLI-EDoL16yJZNypuApS5FAyV4ePncsmc6yLw1Ek1rUIDo99b-Ncs_M4Z8u1Yw/exec";
+    const ADMIN_WA = "62895334016084";
+
+    const PRODUCTS = [
+  {
+    id: 1,
+    name: "Paket Simple A",
+    category: "simple",
+    price: 75000,
+    img: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400",
+    desc: "Isi 3 kue + snack, cocok untuk hantaran sederhana."
+  },
+  {
+    id: 2,
+    name: "Paket Simple B",
+    category: "simple",
+    price: 95000,
+    img: "https://images.unsplash.com/photo-1604909053191-6b45c5a1c9b2?w=400",
+    desc: "Isi 4 kue premium, kemasan rapi."
+  },
+  {
+    id: 3,
+    name: "Paket Exclusive Gold",
+    category: "exclusive",
+    price: 175000,
+    img: "https://images.unsplash.com/photo-1601972599720-36938d4ecd31?w=400",
+    desc: "Isi lengkap, box exclusive + kartu ucapan."
+  },
+  {
+    id: 4,
+    name: "Paket Exclusive Platinum",
+    category: "exclusive",
+    price: 250000,
+    img: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400",
+    desc: "Hampers premium, cocok acara besar."
+  },
+  {
+    id: 5,
+    name: "Brownies Coklat",
+    category: "satuan",
+    price: 25000,
+    img: "https://images.unsplash.com/photo-1599785209798-6c9f7d39f52d?w=400",
+    desc: "Brownies lembut coklat premium."
+  },
+  {
+    id: 6,
+    name: "Cupcake Vanilla",
+    category: "satuan",
+    price: 12000,
+    img: "https://images.unsplash.com/photo-1519869325930-281384150729?w=400",
+    desc: "Cupcake vanilla lembut."
+  }
+];
+
+
+    let currentUser = JSON.parse(localStorage.getItem('ghania_user')) || null;
+    let cart = [];
+
+    window.onload = () => { updateUIAuth(); renderProducts(); };
+      let activeCategory = 'all';
+
+function setCategory(cat){
+  activeCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('nav-active'));
+  event.target.classList.add('nav-active');
+  renderProducts();
+}
+
+    function renderProducts() {
+  const list = document.getElementById('product-list');
+
+  let data = PRODUCTS;
+
+  // Filter kategori
+  if(activeCategory !== 'all'){
+    data = data.filter(p => p.category === activeCategory);
+  }
+
+  // Filter search
+  if(searchKeyword){
+    data = data.filter(p =>
+      p.name.toLowerCase().includes(searchKeyword) ||
+      p.desc.toLowerCase().includes(searchKeyword)
+    );
+  }
+
+  // Jika kosong
+  if(data.length === 0){
+    list.innerHTML = `
+      <div class="col-span-full text-center text-gray-400 text-xs py-10">
+        Produk tidak ditemukan
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = data.map(p => `
+    <div onclick="openProductDetail(${p.id})"
+      class="bg-white rounded-[2rem] overflow-hidden border border-gray-100 card-shadow cursor-pointer">
+      <img src="${p.img}" class="w-full h-32 object-cover">
+      <div class="p-4">
+        <h3 class="font-bold text-xs mb-1">${p.name}</h3>
+        <p class="text-orange-600 font-black text-sm">
+          Rp ${p.price.toLocaleString()}
+        </p>
+      </div>
+    </div>
+  `).join('');
+}
+
+
+
+    function addToCart(id) {
+        const p = PRODUCTS.find(x => x.id === id);
+        const exists = cart.find(i => i.id === id);
+        if(exists) exists.qty++; else cart.push({...p, qty: 1});
+        updateCartBadge(); showToast("Item ditambahkan");
+    }
+
+    function updateCartBadge() { document.getElementById('cart-badge').innerText = cart.reduce((a, b) => a + b.qty, 0); }
+    function openCart() { document.getElementById('modal-cart').classList.remove('hidden'); renderCartItems(); }
+    function closeCart() { document.getElementById('modal-cart').classList.add('hidden'); }
+
+    function renderCartItems() {
+        const container = document.getElementById('cart-items');
+        if(cart.length === 0) container.innerHTML = `<p class="text-center text-gray-400 text-xs py-10">Keranjang Kosong</p>`;
+        else container.innerHTML = cart.map(i => `
+            <div class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100">
+                <div class="flex-1 text-xs">
+                    <p class="font-bold">${i.name}</p>
+                    <p class="text-orange-600 font-black">Rp ${(i.price * i.qty).toLocaleString()}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="adj(${i.id}, -1)" class="w-8 h-8 bg-gray-50 rounded-full font-black">-</button>
+                    <span class="text-xs font-bold">${i.qty}</span>
+                    <button onclick="adj(${i.id}, 1)" class="w-8 h-8 bg-gray-50 rounded-full font-black">+</button>
+                </div>
+            </div>
+        `).join('');
+        calculateTotal();
+    }
+
+    function adj(id, d) {
+        const i = cart.find(x => x.id === id);
+        if(i) { i.qty += d; if(i.qty <= 0) cart = cart.filter(x => x.id !== id); }
+        renderCartItems(); updateCartBadge();
+    }
+
+    function calculateTotal() {
+        const total = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+        document.getElementById('total-val').innerText = `Rp ${total.toLocaleString()}`;
+        document.getElementById('dp-amount-label').innerText = Math.floor(total/2).toLocaleString();
+        document.getElementById('re-amount-label').innerText = (total - Math.floor(total/2)).toLocaleString();
+        document.getElementById('btn-to-checkout').disabled = cart.length === 0;
+    }
+
+    function updatePaymentUI() {
+        document.getElementById('dp-info-container').classList.toggle('hidden', document.getElementById('f-bayar').value !== 'DP 50%');
+    }
+
+    function handleCheckoutProcess() {
+        if(!currentUser) { closeCart(); openAuth(); }
+        else { closeCart(); document.getElementById('modal-checkout').classList.remove('hidden'); updatePaymentUI(); }
+    }
+
+    function closeCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
+
+  
+        async function submitOrder() {
+          const paymentType = document.getElementById('f-bayar').value;
+          const total = parseInt(
+            document.getElementById('total-val').innerText.replace(/\D/g, '')
+          );
+          const date = document.getElementById('f-tgl').value;
+          const addr = document.getElementById('f-alamat').value;
+        
+          // ➕ TAMBAHAN (SUDAH BENAR)
+          const time = document.getElementById('f-jam')?.value || "-";
+          const note = document.getElementById('f-catatan')?.value || "-";
+        
+          if (!date || !addr)
+            return alert("Harap isi Tanggal & Alamat!");
+        
+          showLoader(true, "Memproses Data...");
+        
+          const itemText = cart.map(i => `${i.name} (x${i.qty})`).join(", ");
+        
+          let ordersToSubmit = [];
+        
+          // =====================
+          // PESAN WHATSAPP
+          // =====================
+          let waMsg =
+        `*PESANAN BARU - DAPUR GHANIA*
+        ----------------------------
+        Nama   : ${currentUser.name}
+        Metode : *${paymentType}*
+        
+        Item   : ${itemText}
+        Total  : Rp ${total.toLocaleString()}
+        
+        🗓️ Tanggal : ${date}
+        ⏰ Jam     : ${time}
+        📍 Alamat :
+        ${addr}
+        
+        📝 Catatan :
+        ${note}
+        ----------------------------`;
+        
+          // =====================
+          // DATA KE GOOGLE SHEET
+          // =====================
+          if (paymentType === 'DP 50%') {
+            const dp = Math.floor(total / 2);
+            const re = total - dp;
+        
+            ordersToSubmit.push({
+              name: currentUser.name,
+              phone: currentUser.phone,
+              total: dp,
+              payment_type: "DP 50% (Termin 1)",
+              address: addr,
+              date: date,
+              time: time,        // ✅ WAJIB
+              note: note,        // ✅ WAJIB
+              items: `[INVOICE DP] ${itemText}`
+            });
+        
+            ordersToSubmit.push({
+              name: currentUser.name,
+              phone: currentUser.phone,
+              total: re,
+              payment_type: "Pelunasan (Termin 2)",
+              address: addr,
+              date: date,
+              time: time,        // ✅ WAJIB
+              note: note,        // ✅ WAJIB
+              items: `[INVOICE PELUNASAN] ${itemText}`
+            });
+        
+          } else {
+            ordersToSubmit.push({
+              name: currentUser.name,
+              phone: currentUser.phone,
+              total: total,
+              payment_type: "Full Payment",
+              address: addr,
+              date: date,
+              time: time,        // ✅ WAJIB
+              note: note,        // ✅ WAJIB
+              items: itemText
+            });
+          }
+        
+          try {
+            for (let data of ordersToSubmit) {
+              const fd = new URLSearchParams();
+              for (let k in data) fd.append(k, data[k]);
+        
+              await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: fd,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+              });
+            }
+        
+            showLoader(false);
+            window.open(
+              `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(waMsg)}`,
+              '_blank'
+            );
+        
+            alert("Pesanan berhasil dikirim 👍");
+            location.reload();
+        
+          } catch (e) {
+            showLoader(false);
+            alert("Error koneksi. Silakan hubungi admin.");
+          }
+        }
+
+
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+        document.getElementById(`page-${pageId}`).classList.remove('hidden');
+        document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('nav-active', 'text-orange-600'));
+        document.getElementById(`nav-${pageId}`).classList.add('nav-active', 'text-orange-600');
+        if(pageId === 'history') fetchUserHistory();
+        if(pageId === 'admin') fetchAdminOrders();
+    }
+
+    function fetchUserHistory() {
+        document.getElementById('history-list').innerHTML = `<p class="text-center text-xs py-10">Memuat riwayat...</p>`;
+        injectScript(`${SCRIPT_URL}?action=getOrders&phone=${currentUser.phone}&callback=historyCb`);
+    }
+
+    window.historyCb = (res) => {
+  const list = document.getElementById("history-list");
+
+  if (!res.success || !res.data || res.data.length === 0) {
+    list.innerHTML = `
+      <div class="bg-white p-10 rounded-3xl text-center">
+        <p class="text-gray-400 text-xs">Belum ada pesanan</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = res.data.map(o => `
+    <div class="bg-white rounded-3xl p-4 shadow border">
+
+      <div class="flex justify-between items-center">
+        <p class="font-bold text-sm">${o.invoice}</p>
+        <span class="text-[10px] px-2 py-1 rounded-full
+          ${o.status_bayar === 'Lunas'
+            ? 'bg-green-100 text-green-700'
+            : 'bg-red-100 text-red-600'}">
+          ${o.status_bayar}
+        </span>
+      </div>
+
+      <p class="text-[11px] text-gray-500 mt-1">
+        💳 ${o.payment_type}
+      </p>
+
+      <p class="text-[11px] mt-1">
+        💰 Rp ${Number(o.total).toLocaleString("id-ID")}
+      </p>
+
+      <p class="text-[11px] mt-1">
+        📅 ${o.date}
+      </p>
+
+      <div class="mt-2 text-[11px] font-bold text-blue-600">
+        📦 ${o.tracking || "PO Masuk"}
+      </div>
+
+    </div>
+  `).join("");
+};
+
+
+    function fetchAdminOrders() {
+        document.getElementById('admin-orders-table').innerHTML = `<tr><td colspan="5" class="p-10 text-center">Memuat...</td></tr>`;
+        injectScript(`${SCRIPT_URL}?action=getAllOrders&callback=adminCb`);
+    }
+
+    window.adminCb = (res) => {
+  if(!res.data) return;
+
+  document.getElementById('admin-orders-table').innerHTML =
+    res.data.map(o => `
+<tr class="hover:bg-gray-50">
+
+  <td class="p-4 font-bold text-orange-600">${o.invoice}</td>
+
+  <td class="p-4 text-[10px] font-bold">${o.name}</td>
+
+  <td class="p-4">
+    <p class="font-black">Rp ${parseInt(o.total).toLocaleString()}</p>
+    <p class="text-[9px] text-gray-400">${o.payment_type}</p>
+  </td>
+
+  <td class="p-4">
+    <input type="number"
+      value="${o.ongkir || 0}"
+      onchange="updateOngkir(${o.rowId}, this.value)"
+      class="w-20 p-1 text-[10px] font-bold border rounded">
+  </td>
+
+  <td class="p-4">
+    <select onchange="updateStatus(${o.rowId}, this.value)"
+      class="text-[10px] font-black p-1 bg-gray-100 rounded">
+      <option value="Belum Bayar" ${o.status_bayar==='Belum Bayar'?'selected':''}>❌ Belum</option>
+      <option value="Lunas" ${o.status_bayar==='Lunas'?'selected':''}>✅ Lunas</option>
+    </select>
+  </td>
+
+  <td class="p-4">
+    <select onchange="updateTracking(${o.rowId}, this.value)"
+      class="text-[10px] font-black p-1 bg-blue-50 rounded">
+      <option ${o.tracking==='PO Masuk'?'selected':''}>PO Masuk</option>
+      <option ${o.tracking==='Proses Baking'?'selected':''}>Proses Baking</option>
+      <option ${o.tracking==='Proses Kirim'?'selected':''}>Proses Kirim</option>
+      <option ${o.tracking==='Hantaran Diterima'?'selected':''}>Hantaran Diterima</option>
+    </select>
+  </td>
+
+  <td class="p-4">
+    <button
+  onclick="kirimInvoiceWA(this, ${o.rowId})"
+  class="wa-btn px-3 py-1 bg-green-600 text-white rounded
+         text-[11px] font-bold
+         transition-all duration-150
+         active:scale-95 active:bg-green-700
+         hover:bg-green-700
+         flex items-center gap-1">
+
+  <span class="wa-text">📲 Kirim WA</span>
+  <span class="wa-loader hidden animate-spin">⏳</span>
+</button>
+
+  </td>
+
+</tr>
+`).join('');
+};
+
+
+    async function updateStatus(rowId, status) {
+        showLoader(true, "Updating...");
+        injectScript(`${SCRIPT_URL}?action=updateStatus&rowId=${rowId}&status=${status}&callback=updateCb`);
+    }
+    window.updateCb = (res) => { showLoader(false); if(res.success) fetchAdminOrders(); };
+function updateOngkir(rowId, ongkir) {
+  if(!confirm("Tambahkan ongkir Rp " + ongkir + " ?")) return;
+  showLoader(true, "Update Ongkir...");
+  injectScript(
+    `${SCRIPT_URL}?action=updateOngkir&rowId=${rowId}&ongkir=${ongkir}&callback=ongkirCb`
+  );
+}
+
+window.ongkirCb = (res) => {
+  showLoader(false);
+  if(res.success) fetchAdminOrders();
+};
+
+function kirimInvoiceWA(btn, rowId) {
+  if (!rowId || rowId < 2) {
+    alert("❌ Row ID tidak valid");
+    return;
+  }
+
+  const text = btn.querySelector(".wa-text");
+  const loader = btn.querySelector(".wa-loader");
+
+  btn.disabled = true;
+  text.textContent = "Mengirim...";
+  loader.classList.remove("hidden");
+
+  const cb = "cb_" + Date.now();
+  window[cb] = res => {
+    btn.disabled = false;
+    text.textContent = "📲 Kirim WA";
+    loader.classList.add("hidden");
+
+    if (res.success) {
+      alert("✅ Invoice berhasil dikirim via WhatsApp");
+    } else {
+      alert("❌ Gagal kirim WA: " + (res.message || ""));
+    }
+
+    delete window[cb];
+  };
+
+  const script = document.createElement("script");
+  script.src =
+    SCRIPT_URL +
+    `?action=sendInvoiceWA&rowId=${rowId}&callback=${cb}`;
+
+  document.body.appendChild(script);
+}
+
+    // --- Auth Logic ---
+    function openAuth() { document.getElementById('auth-screen').classList.replace('hidden', 'flex'); }
+    function closeAuth() { document.getElementById('auth-screen').classList.replace('flex', 'hidden'); }
+    let authMode = 'login';
+    function switchAuth(m) {
+        authMode = m;
+        document.getElementById('reg-name-wrapper').classList.toggle('hidden', m === 'login');
+        document.getElementById('tab-login').className = m === 'login' ? "flex-1 py-3 rounded-xl text-xs font-bold bg-white shadow-sm text-orange-600" : "flex-1 py-3 rounded-xl text-xs font-bold text-gray-500";
+        document.getElementById('tab-register').className = m === 'register' ? "flex-1 py-3 rounded-xl text-xs font-bold bg-white shadow-sm text-orange-600" : "flex-1 py-3 rounded-xl text-xs font-bold text-gray-500";
+    }
+    async function handleAuth() {
+        const phone = document.getElementById('auth-phone').value, pin = document.getElementById('auth-pin').value, name = document.getElementById('auth-name').value;
+        if(!phone || !pin) return;
+        showLoader(true, "Authenticating...");
+        injectScript(`${SCRIPT_URL}?action=${phone===ADMIN_WA?'loginAdmin':authMode}&phone=${phone}&pin=${pin}&name=${encodeURIComponent(name)}&callback=authCallback`);
+    }
+    window.authCallback = (res) => {
+        showLoader(false);
+        if(res.success) {
+            currentUser = { phone: document.getElementById('auth-phone').value, name: res.name || document.getElementById('auth-name').value };
+            localStorage.setItem('ghania_user', JSON.stringify(currentUser));
+            updateUIAuth(); closeAuth();
+        } else alert(res.message);
+    };
+    function updateUIAuth() {
+        if(currentUser) {
+            document.getElementById('btn-login-trigger').classList.add('hidden');
+            document.getElementById('btn-profile-trigger').classList.remove('hidden');
+            document.getElementById('main-nav').classList.remove('hidden');
+            document.getElementById('display-name').innerText = currentUser.name.split(' ')[0];
+            if(currentUser.phone === ADMIN_WA) document.getElementById('nav-admin').classList.remove('hidden');
+            document.getElementById('f-nama').value = currentUser.name;
+        }
+    }
+    function handleUserAction() { if(confirm("Logout?")) { localStorage.clear(); location.reload(); } }
+    function injectScript(url) { const s = document.createElement('script'); s.src = url; document.body.appendChild(s); }
+    function showLoader(v, t) { document.getElementById('loader').classList.toggle('hidden', !v); document.getElementById('loader').classList.toggle('flex', v); document.getElementById('loader-text').innerText = t; }
+    function showToast(m) { const t = document.createElement('div'); t.className = "fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-2 rounded-full text-[10px] font-black z-[300]"; t.innerText = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+
+let selectedProduct = null;
+
+function openProductDetail(id){
+  selectedProduct = PRODUCTS.find(p=>p.id===id);
+  document.getElementById('dp-img').src = selectedProduct.img;
+  document.getElementById('dp-name').innerText = selectedProduct.name;
+  document.getElementById('dp-desc').innerText = selectedProduct.desc;
+  document.getElementById('dp-price').innerText =
+    `Rp ${selectedProduct.price.toLocaleString()}`;
+  document.getElementById('modal-product').classList.remove('hidden');
+}
+
+function closeProductDetail(){
+  document.getElementById('modal-product').classList.add('hidden');
+}
+
+function addDetailToCart(){
+  addToCart(selectedProduct.id);
+  closeProductDetail();
+}
+
+let searchKeyword = "";
+
+function handleSearch(val){
+  searchKeyword = val.toLowerCase();
+  renderProducts();
+}
+function updateTracking(rowId, tracking) {
+  showLoader(true, "Update Tracking...");
+  injectScript(
+    `${SCRIPT_URL}?action=updateTracking&rowId=${rowId}&tracking=${encodeURIComponent(tracking)}&callback=trackingCb`
+  );
+}
+
+window.trackingCb = (res) => {
+  showLoader(false);
+  if(res.success) fetchAdminOrders();
+};
+
+</script>
+<div id="modal-product"
+ class="fixed inset-0 z-[120] hidden flex items-center justify-center p-4 modal-blur">
+  <div class="bg-white max-w-sm w-full rounded-[2.5rem] overflow-hidden">
+    <img id="dp-img" class="w-full h-48 object-cover">
+    <div class="p-6">
+      <h3 id="dp-name" class="font-black text-lg"></h3>
+      <p id="dp-desc" class="text-xs text-gray-500 my-3"></p>
+      <p id="dp-price" class="font-black text-orange-600 text-xl mb-4"></p>
+      <button onclick="addDetailToCart()"
+        class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black">
+        Tambah ke Keranjang
+      </button>
+      <button onclick="closeProductDetail()"
+        class="w-full mt-2 text-xs font-bold text-gray-400">
+        Tutup
+      </button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
